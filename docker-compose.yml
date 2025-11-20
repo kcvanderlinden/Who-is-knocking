@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  log-server:
+    build: .
+    container_name: rsyslog-server
+    restart: unless-stopped
+    ports:
+      - "5555:5555/udp"
+      - "5555:5555/tcp"
+    volumes:
+      - ./logs:/var/log   # persistent log dir (remote.log + kernel_logs.db)
+      - ./rsyslog.conf:/etc/rsyslog.conf
+      - ./kernel_log_processor.py:/usr/local/bin/kernel_log_processor.py
+      - ./entrypoint.sh:/entrypoint.sh
+    environment:
+      - RSYSLOG_DEBUG=0
