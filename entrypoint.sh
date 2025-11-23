@@ -1,17 +1,24 @@
 #!/bin/sh
-# 1. Start rsyslog in background
+set -e
+
+# 1️⃣ Create the database (if needed)
+DB="/var/log/kernel_logs.db"
+if [ ! -f "$DB" ]; then
+    echo "Creating new SQLite DB at $DB"
+    sqlite3 "$DB" < /init.sql
+fi
+
+# 2️⃣ Start rsyslog in the background
 rsyslogd -n &
 RSYS_PID=$!
 
-# 2. Wait until the remote log file is present.
-#    (rsyslog might not create it instantly, but it will be there soon.)
+# 3️⃣ Wait for the log file that rsyslog writes
 until [ -f /var/log/remote.log ]; do
     sleep 1
 done
 
-# 3. Tail the file and pipe it to our Python worker.
-#    tail -F keeps the worker alive if the file is rotated.
+# 4️⃣ Tail it and feed the Python processor
 tail -F /var/log/remote.log | python3 /usr/local/bin/kernel_log_processor.py
 
-# 4. Wait for rsyslog to exit (if it ever does)
+# 5️⃣ Keep the container alive (rsyslog)
 wait $RSYS_PID

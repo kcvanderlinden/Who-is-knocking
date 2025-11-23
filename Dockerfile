@@ -1,15 +1,16 @@
-# Base image already has rsyslog
 FROM rsyslog/rsyslog:latest
 
-# Install Python3 (apk is lightweight)
-RUN apk add --no-cache python3 py3-pip
+# Install python3 (sqlite3 CLI is already in the base image)
+RUN apk add --no-cache python3
 
-# Copy our application files
+# Copy everything we need into the image
 COPY kernel_log_processor.py /usr/local/bin/kernel_log_processor.py
 COPY entrypoint.sh /entrypoint.sh
+COPY init.sql /init.sql
+COPY rsyslog.conf /etc/rsyslog.conf
 
-# Make the entrypoint executable
+# Make entrypoint executable
 RUN chmod +x /entrypoint.sh
 
-# We want rsyslog to run in the foreground
+# Start the container with our script
 CMD ["/entrypoint.sh"]
