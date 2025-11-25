@@ -2,13 +2,10 @@ FROM rsyslog/rsyslog:latest
 
 WORKDIR /app
 
-# Install python3 (sqlite3 CLI is already in the base image)
-RUN apk add --no-cache python3
-
 # Install build dependencies
 RUN apt-get update && \
 apt-get install -y --no-install-recommends \
-    ca-certificates \
+    ca-certificates python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install runtime dependencies
