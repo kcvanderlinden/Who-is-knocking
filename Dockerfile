@@ -23,7 +23,11 @@ COPY init.sql /init.sql
 COPY rsyslog.conf /etc/rsyslog.conf
 
 # Make entrypoint executable
-RUN chmod +x /entrypoint.sh
+# Source - https://stackoverflow.com/a
+# Posted by Charles Duffy, modified by community. See post 'Timeline' for change history
+# Retrieved 2025-11-25, License - CC BY-SA 3.0
+RUN chmod 755 /entrypoint.sh
+RUN ["chmod", "+x", "/entrypoint.sh"]
 
 # Start the container with our script
 ENTRYPOINT ["/entrypoint.sh"]
