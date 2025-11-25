@@ -11,8 +11,7 @@ Usage
 
 import sqlite3
 from collections import Counter
-import requests
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, request, url_for
 
 # ----------------------------------------------------------------------
 # Configuration
