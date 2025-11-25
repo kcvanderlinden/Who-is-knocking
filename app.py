@@ -11,6 +11,7 @@ Usage
 
 import sqlite3
 from collections import Counter
+import requests
 from flask import Flask, render_template, g
 
 # ----------------------------------------------------------------------
@@ -63,13 +64,40 @@ def get_country_ranking():
     rows = cur.fetchall()
     return [(row['country_src'], row['cnt']) for row in rows]
 
+def get_dst_country_ranking():
+    """Return (country_dst, count) sorted descending."""
+    db = get_db()
+    cur = db.execute(
+        f'''
+        SELECT country_dst, COUNT(*) AS cnt
+        FROM {TABLE}
+        WHERE country_dst IS NOT NULL
+        GROUP BY country_dst
+        ORDER BY cnt DESC
+        '''
+    )
+    rows = cur.fetchall()
+    return [(row['country_dst'], row['cnt']) for row in rows]
+
 # ----------------------------------------------------------------------
 # Flask route
 # ----------------------------------------------------------------------
 @app.route('/')
 def index():
-    ranking = get_country_ranking()
-    return render_template('index.html', ranking=ranking)
+    view = request.args.get('view', 'src')
+    if view == 'dst':
+        ranking = get_dst_country_ranking()
+        title = "Destination Ranking"
+        toggle_url = url_for('index', view='src')
+        toggle_text = "Show Source Ranking"
+    else:
+        ranking = get_country_ranking()
+        title = "Source Ranking"
+        toggle_url = url_for('index', view='dst')
+        toggle_text = "Show Destination Ranking"
+    return render_template('index.html', ranking=ranking,
+                           title=title, toggle_url=toggle_url,
+                           toggle_text=toggle_text)
 
 # ----------------------------------------------------------------------
 # Run the app if this file is executed directly
