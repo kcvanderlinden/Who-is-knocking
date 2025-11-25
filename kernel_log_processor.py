@@ -3,6 +3,8 @@ import sys
 import sqlite3
 import datetime
 import re
+import urllib.request
+import json
 
 DB_PATH = '/var/log/kernel_logs.db'
 TABLE = 'kernel_logs'
@@ -13,6 +15,42 @@ PATTERN = r'''(?P<date>\d{4}-\d{2}-\d{2})[^0-9]*.*?
     SRC=(?P<src>\d{1,3}(?:\.\d{1,3}){3}).*?
     DST=(?P<dst>\d{1,3}(?:\.\d{1,3}){3})'''
 
+# ----------------------------------------------------------------------
+# Helper: IP → Country --------------------------------------------------
+# ----------------------------------------------------------------------
+def get_country(ip: str) -> str | None:
+    """
+    Return the country name for the given IPv4 address.
+
+    The function queries the free ipapi.co JSON endpoint:
+        https://ipapi.co/<ip>/json/
+
+    Parameters
+    ----------
+    ip : str
+        The IPv4 address to look up.
+
+    Returns
+    -------
+    str | None
+        The country name (e.g., "United States") if the lookup succeeds,
+        otherwise None.
+    """
+    # Reject obviously private or malformed IPs early
+    if not ip or ip.startswith('127.') or ip.startswith('10.') or \
+       ip.startswith('192.168.') or ip.startswith('172.'):
+        return None
+
+    url = f'https://ipapi.co/{ip}/json/'
+    try:
+        with urllib.request.urlopen(url, timeout=5) as resp:
+            data = json.load(resp)
+            # ipapi.co returns both the 2‑letter code and the full name
+            return data.get('country_name') or data.get('country')
+    except Exception:
+        # Any network error, parsing error, or HTTP error simply yields None
+        return None
+
 def parse_line(line: str):
     try:
         m = re.search(PATTERN, line, re.VERBOSE)
@@ -20,7 +58,7 @@ def parse_line(line: str):
         return None
     print(m.groupdict())
 
-    date_str, t_str, type, src, dst = m.groupdict().values()
+    date_str, t_str, ban_type, src, dst = m.groupdict().values()
     ts_str = date_str + " " + t_str
     # Convert to ISO‑8601 UTC. dmesg uses local time by default,
     # but OpenWRT's logd logs UTC. Adjust if needed.
@@ -29,13 +67,18 @@ def parse_line(line: str):
     ts = ts.replace(year=datetime.datetime.utcnow().year)
     ts_iso = ts.replace(tzinfo=datetime.timezone.utc).isoformat()
 
-    severity = 'info'  # default – can be expanded
-    return (ts_iso, type, src, dst)
+    # ------------------------------------------------------------------
+    # Look up countries
+    # ------------------------------------------------------------------
+    country_src = get_country(src)
+    country_dst = get_country(dst)
+
+    return (ts_iso, ban_type, src, dst, country_src, country_dst)
 
 def insert_log(entry):
     conn = sqlite3.connect(DB_PATH)
     conn.execute(
-        f'INSERT INTO {TABLE} (ts, facility, severity, message) VALUES (?, ?, ?, ?)',
+        f'INSERT INTO {TABLE} (ts, ban_type, src, dst, country_src, country_dst) VALUES (?, ?, ?, ?, ?, ?)',
         entry
     )
     conn.commit()
