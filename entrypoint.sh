@@ -24,7 +24,7 @@ done
 tail -F /var/log/remote.log | python3 /usr/local/bin/kernel_log_processor.py
 
 # active the virtual environment
-source /venv/bin/activate
+source ./venv/bin/activate
 
 # run flask app
 python3 app.py &
