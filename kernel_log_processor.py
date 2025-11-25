@@ -69,8 +69,9 @@ def parse_line(line: str):
         m = re.search(PATTERN, line, re.VERBOSE)
     except:
         return None
-    # print(m.groupdict())
 
+    if not m:
+        return None
     date_str, t_str, ban_type, src, dst = m.groupdict().values()
     ts_str = date_str + " " + t_str
     # Convert to ISO‑8601 UTC. dmesg uses local time by default,
