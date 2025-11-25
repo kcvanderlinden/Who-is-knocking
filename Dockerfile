@@ -26,4 +26,4 @@ COPY rsyslog.conf /etc/rsyslog.conf
 RUN chmod +x /entrypoint.sh
 
 # Start the container with our script
-CMD ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
