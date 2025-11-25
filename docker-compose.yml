@@ -8,6 +8,7 @@ services:
     ports:
       - "5555:5555/udp"
       - "5555:5555/tcp"
+      - "3002:5000"
     volumes:
       - ./logs:/var/log   # persistent log dir (remote.log + kernel_logs.db)
       - ./rsyslog.conf:/etc/rsyslog.conf

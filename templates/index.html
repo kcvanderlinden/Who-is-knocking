@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Country Source Ranking</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        h1 { margin-bottom: 1rem; }
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            max-width: 600px;
+        }
+        th, td {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th { background: #f4f4f4; }
+        tr:nth-child(even) { background: #fafafa; }
+    </style>
+</head>
+<body>
+    <h1>Country Source Ranking</h1>
+    {% if ranking %}
+    <table>
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for country, cnt in ranking %}
+            <tr>
+                <td>{{ country }}</td>
+                <td>{{ cnt }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No data found in the database.</p>
+    {% endif %}
+</body>
+</html>

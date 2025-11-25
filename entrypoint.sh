@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+export FLASK_APP=app.py
+export FLASK_ENV=production
+
 # 1️⃣ Create the database (if needed)
 DB="/var/log/kernel_logs.db"
 if [ ! -f "$DB" ]; then
@@ -20,5 +23,9 @@ done
 # 4️⃣ Tail it and feed the Python processor
 tail -F /var/log/remote.log | python3 /usr/local/bin/kernel_log_processor.py
 
+# run flask app
+flask run
+
 # 5️⃣ Keep the container alive (rsyslog)
 wait $RSYS_PID
+

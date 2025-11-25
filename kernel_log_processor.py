@@ -49,7 +49,6 @@ def get_country(ip: str) -> str | None:
     try:
         with urllib.request.urlopen(url, timeout=5) as resp:
             data = json.load(resp)
-            print(data)
             # ipapi.co returns both the 2‑letter code and the full name
             return data.get('as')['country'] 
     except Exception:
