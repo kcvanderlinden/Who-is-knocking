@@ -11,8 +11,7 @@ apt-get install -y --no-install-recommends \
 # Install runtime dependencies
 COPY requirements.txt .
 RUN python3 -m venv venv
-RUN . venv/bin/activate
-RUN pip3 install -r requirements.txt
+RUN venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code
 COPY . .
