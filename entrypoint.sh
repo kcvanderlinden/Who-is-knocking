@@ -23,11 +23,8 @@ done
 # 4️⃣ Tail it and feed the Python processor
 tail -F /var/log/remote.log | python3 /usr/local/bin/kernel_log_processor.py
 
-# active the virtual environment
-source ./venv/bin/activate
-
 # run flask app
-python3 app.py &
+./venv/bin/python3 app.py &
 
 # 5️⃣ Keep the container alive (rsyslog)
 wait $RSYS_PID
