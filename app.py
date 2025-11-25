@@ -56,7 +56,7 @@ def get_country_ranking():
         f'''
         SELECT country_src, COUNT(*) AS cnt
         FROM {TABLE}
-        WHERE country_src IS NOT NULL
+        WHERE country_src IS NOT NULL AND country_src != 'HOME'
         GROUP BY country_src
         ORDER BY cnt DESC
         '''
@@ -71,7 +71,7 @@ def get_dst_country_ranking():
         f'''
         SELECT country_dst, COUNT(*) AS cnt
         FROM {TABLE}
-        WHERE country_dst IS NOT NULL
+        WHERE country_dst IS NOT NULL AND country_dst != 'HOME'
         GROUP BY country_dst
         ORDER BY cnt DESC
         '''
