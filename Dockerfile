@@ -10,6 +10,7 @@ apt-get install -y --no-install-recommends \
 
 # Install runtime dependencies
 COPY requirements.txt .
+RUN python3 -m ensurepip --upgrade
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy the application code
