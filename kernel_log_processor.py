@@ -5,6 +5,8 @@ import datetime
 import re
 import urllib.request
 import json
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 DB_PATH = '/var/log/kernel_logs.db'
 TABLE = 'kernel_logs'
@@ -41,12 +43,13 @@ def get_country(ip: str) -> str | None:
        ip.startswith('192.168.') or ip.startswith('172.'):
         return None
 
-    url = f'https://ipapi.co/{ip}/json/'
+    url = f'https://ip.rootnet.in/lookup/{ip}'
     try:
         with urllib.request.urlopen(url, timeout=5) as resp:
             data = json.load(resp)
+            print(data)
             # ipapi.co returns both the 2‑letter code and the full name
-            return data.get('country_name') or data.get('country')
+            return data.get('as')['country'] 
     except Exception:
         # Any network error, parsing error, or HTTP error simply yields None
         return None
@@ -56,7 +59,7 @@ def parse_line(line: str):
         m = re.search(PATTERN, line, re.VERBOSE)
     except:
         return None
-    print(m.groupdict())
+    # print(m.groupdict())
 
     date_str, t_str, ban_type, src, dst = m.groupdict().values()
     ts_str = date_str + " " + t_str
